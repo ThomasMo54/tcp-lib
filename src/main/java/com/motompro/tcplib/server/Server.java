@@ -3,14 +3,13 @@ package com.motompro.tcplib.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Server {
 
     private final ServerSocket serverSocket;
     private final Map<UUID, Client> clients = new HashMap<>();
+    private final Set<ClientListener> clientListeners = new HashSet<>();
 
     public Server() throws IOException {
         this.serverSocket = new ServerSocket(0);
@@ -30,6 +29,14 @@ public class Server {
         return clients;
     }
 
+    public void addClientListener(ClientListener clientListener) {
+        this.clientListeners.add(clientListener);
+    }
+
+    public void removeClientListener(ClientListener clientListener) {
+        this.clientListeners.remove(clientListener);
+    }
+
     private void startConnectionThread() {
         new Thread(() -> {
             while(!serverSocket.isClosed()) {
@@ -38,7 +45,9 @@ public class Server {
                     if(socket == null)
                         continue;
                     UUID uuid = UUID.randomUUID();
-                    clients.put(uuid, new Client(uuid, socket));
+                    Client client = new Client(uuid, socket);
+                    clients.put(uuid, client);
+                    clientListeners.forEach(clientListener -> clientListener.onClientConnect(client));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
