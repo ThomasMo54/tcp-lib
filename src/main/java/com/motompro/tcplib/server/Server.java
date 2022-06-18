@@ -45,7 +45,7 @@ public class Server {
                     if(socket == null)
                         continue;
                     UUID uuid = UUID.randomUUID();
-                    Client client = new Client(uuid, socket);
+                    Client client = new Client(this, uuid, socket);
                     clients.put(uuid, client);
                     clientListeners.forEach(clientListener -> clientListener.onClientConnect(client));
                 } catch (IOException e) {
@@ -53,5 +53,9 @@ public class Server {
                 }
             }
         }).start();
+    }
+
+    protected void clientSendMessage(Client client, String[] message) {
+        clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, message));
     }
 }
