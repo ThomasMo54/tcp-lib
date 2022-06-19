@@ -61,6 +61,11 @@ public class Server {
         return room;
     }
 
+    public void removeRoom(Room room) {
+        room.getClients().forEach(client -> client.setRoom(null));
+        rooms.remove(room.getUuid());
+    }
+
     public Map<UUID, Room> getRooms() {
         return rooms;
     }
