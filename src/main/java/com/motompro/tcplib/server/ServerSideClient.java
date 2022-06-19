@@ -26,6 +26,10 @@ public class ServerSideClient {
         return socket.getRemoteSocketAddress().toString();
     }
 
+    public boolean isClosed() {
+        return socket.isClosed();
+    }
+
     public void setRoom(Room room) {
         if(this.room != null)
             room.removeClient(this);

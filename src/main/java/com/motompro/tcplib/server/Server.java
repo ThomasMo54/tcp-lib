@@ -117,7 +117,7 @@ public class Server {
                     if(message == null) {
                         clients.remove(client.getUuid());
                         rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
-                        return;
+                        break;
                     }
                     String[] splitMessage = message.split(" ");
                     if(splitMessage.length == 0)
@@ -128,7 +128,7 @@ public class Server {
                             clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
                             clients.remove(client.getUuid());
                             rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
-                            return;
+                            break;
                         }
                         continue;
                     }
@@ -136,6 +136,11 @@ public class Server {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+            try {
+                input.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }).start();
     }
