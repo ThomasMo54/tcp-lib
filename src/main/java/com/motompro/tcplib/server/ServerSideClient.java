@@ -5,14 +5,14 @@ import java.net.Socket;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Client {
+public class ServerSideClient {
 
     private final UUID uuid;
     private final Socket socket;
     private final BufferedWriter output;
     private Room room;
 
-    protected Client(UUID uuid, Socket socket) throws IOException {
+    protected ServerSideClient(UUID uuid, Socket socket) throws IOException {
         this.uuid = uuid;
         this.socket = socket;
         this.output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));

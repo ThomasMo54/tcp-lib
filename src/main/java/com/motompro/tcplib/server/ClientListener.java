@@ -2,9 +2,9 @@ package com.motompro.tcplib.server;
 
 public interface ClientListener {
 
-    void onClientConnect(Client client);
+    void onClientConnect(ServerSideClient client);
 
-    void onClientDisconnect(Client client);
+    void onClientDisconnect(ServerSideClient client);
 
-    void onClientMessage(Client client, String[] message);
+    void onClientMessage(ServerSideClient client, String[] message);
 }

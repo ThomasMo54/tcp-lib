@@ -6,7 +6,7 @@ import java.util.*;
 public class Room {
 
     private final UUID uuid;
-    private final Set<Client> clients = new HashSet<>();
+    private final Set<ServerSideClient> clients = new HashSet<>();
 
     protected Room(UUID uuid) {
         this.uuid = uuid;
@@ -16,31 +16,31 @@ public class Room {
         return uuid;
     }
 
-    public void addClient(Client client) {
+    public void addClient(ServerSideClient client) {
         this.clients.add(client);
         client.setRoom(this);
     }
 
-    public void addClients(Collection<Client> collection) {
+    public void addClients(Collection<ServerSideClient> collection) {
         this.clients.addAll(collection);
         collection.forEach(client -> client.setRoom(this));
     }
 
-    public void removeClient(Client client) {
+    public void removeClient(ServerSideClient client) {
         this.clients.remove(client);
         client.setRoom(null);
     }
 
-    public void removeClients(Collection<Client> collection) {
+    public void removeClients(Collection<ServerSideClient> collection) {
         this.clients.removeAll(collection);
         collection.forEach(client -> client.setRoom(null));
     }
 
-    public Set<Client> getClients() {
+    public Set<ServerSideClient> getClients() {
         return clients;
     }
 
-    public boolean isInside(Client client) {
+    public boolean isInside(ServerSideClient client) {
         return clients.contains(client);
     }
 
@@ -48,7 +48,7 @@ public class Room {
         broadcast(Collections.emptySet(), message);
     }
 
-    public void broadcast(Set<Client> blacklist, String... message) {
+    public void broadcast(Set<ServerSideClient> blacklist, String... message) {
         clients.stream().filter(client -> !blacklist.contains(client)).forEach(client -> {
             try {
                 client.sendMessage(message);

@@ -14,7 +14,7 @@ public class Server {
     public static final String DISCONNECT_MESSAGE = "disconnect";
 
     private final ServerSocket serverSocket;
-    private final Map<UUID, Client> clients = new HashMap<>();
+    private final Map<UUID, ServerSideClient> clients = new HashMap<>();
     private final Set<ClientListener> clientListeners = new HashSet<>();
     private final Map<UUID, Room> rooms = new HashMap<>();
 
@@ -32,7 +32,7 @@ public class Server {
         return serverSocket.getLocalPort();
     }
 
-    public Map<UUID, Client> getClients() {
+    public Map<UUID, ServerSideClient> getClients() {
         return clients;
     }
 
@@ -44,7 +44,7 @@ public class Server {
         this.clientListeners.remove(clientListener);
     }
 
-    public void kick(Client client) {
+    public void kick(ServerSideClient client) {
         try {
             client.kick();
             clients.remove(client.getUuid());
@@ -74,7 +74,7 @@ public class Server {
         broadcast(Collections.emptySet(), message);
     }
 
-    public void broadcast(Set<Client> blacklist, String... message) {
+    public void broadcast(Set<ServerSideClient> blacklist, String... message) {
         clients.values().stream().filter(client -> !blacklist.contains(client)).forEach(client -> {
             try {
                 client.sendMessage(message);
@@ -92,7 +92,7 @@ public class Server {
                     if(socket == null)
                         continue;
                     UUID uuid = UUID.randomUUID();
-                    Client client = new Client(uuid, socket);
+                    ServerSideClient client = new ServerSideClient(uuid, socket);
                     clients.put(uuid, client);
                     clientListeners.forEach(clientListener -> clientListener.onClientConnect(client));
                     startClientInputThread(client, socket);
@@ -103,7 +103,7 @@ public class Server {
         }).start();
     }
 
-    private void startClientInputThread(Client client, Socket socket) {
+    private void startClientInputThread(ServerSideClient client, Socket socket) {
         new Thread(() -> {
             BufferedReader input;
             try {
