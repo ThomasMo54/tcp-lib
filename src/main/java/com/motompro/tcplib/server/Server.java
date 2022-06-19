@@ -9,8 +9,9 @@ import java.util.*;
 
 public class Server {
 
-    private static final String INTERNAL_MESSAGE_PREFIX = "internal";
-    private static final String DISCONNECT_MESSAGE = "disconnect";
+    public static final String INTERNAL_MESSAGE_PREFIX = "internal";
+    public static final String EXTERNAL_MESSAGE_PREFIX = "external";
+    public static final String DISCONNECT_MESSAGE = "disconnect";
 
     private final ServerSocket serverSocket;
     private final Map<UUID, Client> clients = new HashMap<>();
@@ -50,7 +51,7 @@ public class Server {
                     if(socket == null)
                         continue;
                     UUID uuid = UUID.randomUUID();
-                    Client client = new Client(this, uuid, socket);
+                    Client client = new Client(uuid, socket);
                     clients.put(uuid, client);
                     clientListeners.forEach(clientListener -> clientListener.onClientConnect(client));
                     startClientInputThread(client, socket);
