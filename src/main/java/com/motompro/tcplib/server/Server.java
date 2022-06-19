@@ -113,17 +113,15 @@ public class Server {
             }
             while(!socket.isClosed()) {
                 try {
-                    String message = input.readLine();
-                    if(message == null) {
+                    String messagePrefix = input.readLine();
+                    if(messagePrefix == null) {
                         clients.remove(client.getUuid());
                         rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
                         break;
                     }
-                    String[] splitMessage = message.split(" ");
-                    if(splitMessage.length == 0 || splitMessage.length == 1)
-                        continue;
-                    if(splitMessage[0].equals(INTERNAL_MESSAGE_PREFIX)) {
-                        if(splitMessage[1].equals(DISCONNECT_MESSAGE)) {
+                    if(messagePrefix.equals(INTERNAL_MESSAGE_PREFIX)) {
+                        String message = input.readLine();
+                        if(message.equals(DISCONNECT_MESSAGE)) {
                             client.close();
                             clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
                             clients.remove(client.getUuid());
@@ -132,10 +130,10 @@ public class Server {
                         }
                         continue;
                     }
-                    if(!splitMessage[0].equals(EXTERNAL_MESSAGE_PREFIX))
+                    if(!messagePrefix.equals(EXTERNAL_MESSAGE_PREFIX))
                         continue;
-                    String[] modifiedMessage = Arrays.copyOfRange(splitMessage, 1, splitMessage.length);
-                    clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, modifiedMessage));
+                    String message = input.readLine();
+                    clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, message));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

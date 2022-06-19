@@ -41,11 +41,9 @@ public class ServerSideClient {
     }
 
     public void sendMessage(String... message) throws IOException {
-        StringBuilder messageBuilder = new StringBuilder();
-        messageBuilder.append(Server.EXTERNAL_MESSAGE_PREFIX);
+        output.write(Server.EXTERNAL_MESSAGE_PREFIX);
         for(String s : message)
-            messageBuilder.append(" ").append(s);
-        output.write(messageBuilder.toString());
+            output.write(s);
         output.flush();
     }
 

@@ -6,5 +6,5 @@ public interface ClientListener {
 
     void onClientDisconnect(ServerSideClient client);
 
-    void onClientMessage(ServerSideClient client, String[] message);
+    void onClientMessage(ServerSideClient client, String message);
 }

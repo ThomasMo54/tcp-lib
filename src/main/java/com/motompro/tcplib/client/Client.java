@@ -4,7 +4,6 @@ import com.motompro.tcplib.server.Server;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,11 +34,9 @@ public class Client {
     }
 
     public void sendMessage(String... message) throws IOException {
-        StringBuilder messageBuilder = new StringBuilder();
-        messageBuilder.append(Server.EXTERNAL_MESSAGE_PREFIX);
+        output.write(Server.EXTERNAL_MESSAGE_PREFIX);
         for(String s : message)
-            messageBuilder.append(" ").append(s);
-        output.write(messageBuilder.toString());
+            output.write(s);
         output.flush();
     }
 
@@ -47,14 +44,16 @@ public class Client {
         new Thread(() -> {
             while(!socket.isClosed()) {
                 try {
-                    String message = input.readLine();
-                    if(message == null)
+                    String messagePrefix = input.readLine();
+                    if(messagePrefix == null) {
+                        socket.close();
+                        output.close();
+                        serverListeners.forEach(ServerListener::onServerDisconnect);
                         break;
-                    String[] splitMessage = message.split(" ");
-                    if(splitMessage.length == 0 || splitMessage.length == 1)
-                        continue;
-                    if(splitMessage[0].equals(Server.INTERNAL_MESSAGE_PREFIX)) {
-                        if(splitMessage[1].equals(Server.DISCONNECT_MESSAGE)) {
+                    }
+                    if(messagePrefix.equals(Server.INTERNAL_MESSAGE_PREFIX)) {
+                        String message = input.readLine();
+                        if(message.equals(Server.DISCONNECT_MESSAGE)) {
                             socket.close();
                             output.close();
                             serverListeners.forEach(ServerListener::onServerDisconnect);
@@ -62,10 +61,10 @@ public class Client {
                         }
                         continue;
                     }
-                    if(!splitMessage[0].equals(Server.EXTERNAL_MESSAGE_PREFIX))
+                    if(!messagePrefix.equals(Server.EXTERNAL_MESSAGE_PREFIX))
                         continue;
-                    String[] modifiedMessage = Arrays.copyOfRange(splitMessage, 1, splitMessage.length);
-                    serverListeners.forEach(serverListener -> serverListener.onServerMessage(modifiedMessage));
+                    String message = input.readLine();
+                    serverListeners.forEach(serverListener -> serverListener.onServerMessage(message));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

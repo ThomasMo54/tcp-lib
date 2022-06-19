@@ -4,5 +4,5 @@ public interface ServerListener {
 
     void onServerDisconnect();
 
-    void onServerMessage(String[] message);
+    void onServerMessage(String message);
 }
