@@ -1,6 +1,8 @@
 package com.motompro.tcplib.server;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
@@ -46,8 +48,10 @@ public class Server {
                         continue;
                     UUID uuid = UUID.randomUUID();
                     Client client = new Client(this, uuid, socket);
+                    BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     clients.put(uuid, client);
                     clientListeners.forEach(clientListener -> clientListener.onClientConnect(client));
+                    startClientInputThread(client, input);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -55,7 +59,14 @@ public class Server {
         }).start();
     }
 
-    protected void clientSendMessage(Client client, String[] message) {
-        clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, message));
+    private void startClientInputThread(Client client, BufferedReader input) {
+        new Thread(() -> {
+            try {
+                String[] message = input.readLine().split(" ");
+                clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, message));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
     }
 }
