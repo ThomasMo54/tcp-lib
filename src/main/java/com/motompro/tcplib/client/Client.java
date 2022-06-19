@@ -4,6 +4,7 @@ import com.motompro.tcplib.server.Server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,9 +51,9 @@ public class Client {
                     if(message == null)
                         break;
                     String[] splitMessage = message.split(" ");
-                    if(splitMessage.length == 0)
+                    if(splitMessage.length == 0 || splitMessage.length == 1)
                         continue;
-                    if(splitMessage[0].equals(Server.INTERNAL_MESSAGE_PREFIX) && splitMessage.length > 1) {
+                    if(splitMessage[0].equals(Server.INTERNAL_MESSAGE_PREFIX)) {
                         if(splitMessage[1].equals(Server.DISCONNECT_MESSAGE)) {
                             socket.close();
                             output.close();
@@ -61,7 +62,10 @@ public class Client {
                         }
                         continue;
                     }
-                    serverListeners.forEach(serverListener -> serverListener.onServerMessage(splitMessage));
+                    if(!splitMessage[0].equals(Server.EXTERNAL_MESSAGE_PREFIX))
+                        continue;
+                    String[] modifiedMessage = Arrays.copyOfRange(splitMessage, 1, splitMessage.length);
+                    serverListeners.forEach(serverListener -> serverListener.onServerMessage(modifiedMessage));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

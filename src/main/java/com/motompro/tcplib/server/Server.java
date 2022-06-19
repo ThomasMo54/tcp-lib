@@ -120,9 +120,9 @@ public class Server {
                         break;
                     }
                     String[] splitMessage = message.split(" ");
-                    if(splitMessage.length == 0)
+                    if(splitMessage.length == 0 || splitMessage.length == 1)
                         continue;
-                    if(splitMessage[0].equals(INTERNAL_MESSAGE_PREFIX) && splitMessage.length > 1) {
+                    if(splitMessage[0].equals(INTERNAL_MESSAGE_PREFIX)) {
                         if(splitMessage[1].equals(DISCONNECT_MESSAGE)) {
                             client.close();
                             clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
@@ -132,7 +132,10 @@ public class Server {
                         }
                         continue;
                     }
-                    clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, splitMessage));
+                    if(!splitMessage[0].equals(EXTERNAL_MESSAGE_PREFIX))
+                        continue;
+                    String[] modifiedMessage = Arrays.copyOfRange(splitMessage, 1, splitMessage.length);
+                    clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, modifiedMessage));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
