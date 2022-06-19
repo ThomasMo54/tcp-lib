@@ -9,6 +9,9 @@ import java.util.*;
 
 public class Server {
 
+    private static final String INTERNAL_MESSAGE_PREFIX = "internal";
+    private static final String DISCONNECT_MESSAGE = "disconnect";
+
     private final ServerSocket serverSocket;
     private final Map<UUID, Client> clients = new HashMap<>();
     private final Set<ClientListener> clientListeners = new HashSet<>();
@@ -48,10 +51,9 @@ public class Server {
                         continue;
                     UUID uuid = UUID.randomUUID();
                     Client client = new Client(this, uuid, socket);
-                    BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     clients.put(uuid, client);
                     clientListeners.forEach(clientListener -> clientListener.onClientConnect(client));
-                    startClientInputThread(client, input);
+                    startClientInputThread(client, socket);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -59,13 +61,34 @@ public class Server {
         }).start();
     }
 
-    private void startClientInputThread(Client client, BufferedReader input) {
+    private void startClientInputThread(Client client, Socket socket) {
         new Thread(() -> {
+            BufferedReader input;
             try {
-                String[] message = input.readLine().split(" ");
-                clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, message));
+                input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            }
+            while(!socket.isClosed()) {
+                try {
+                    String message = input.readLine();
+                    if(message == null)
+                        continue;
+                    String[] splitMessage = message.split(" ");
+                    if(splitMessage.length == 0)
+                        continue;
+                    if(splitMessage[0].equals(INTERNAL_MESSAGE_PREFIX) && splitMessage.length > 1) {
+                        if(splitMessage[1].equals(DISCONNECT_MESSAGE)) {
+                            client.close();
+                            clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
+                            return;
+                        }
+                        continue;
+                    }
+                    clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, splitMessage));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }).start();
     }

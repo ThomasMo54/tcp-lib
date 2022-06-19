@@ -33,4 +33,9 @@ public class Client {
         output.write(messageBuilder.toString());
         output.flush();
     }
+
+    public void close() throws IOException {
+        output.close();
+        socket.close();
+    }
 }
