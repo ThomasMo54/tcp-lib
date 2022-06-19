@@ -27,6 +27,8 @@ public class Client {
     }
 
     public void setRoom(Room room) {
+        if(this.room != null)
+            room.removeClient(this);
         this.room = room;
     }
 
