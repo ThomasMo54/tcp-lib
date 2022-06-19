@@ -1,6 +1,5 @@
 package com.motompro.tcplib.client;
 
-import com.motompro.tcplib.server.ClientListener;
 import com.motompro.tcplib.server.Server;
 
 import java.io.*;
