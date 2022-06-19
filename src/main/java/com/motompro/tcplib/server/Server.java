@@ -44,6 +44,16 @@ public class Server {
         this.clientListeners.remove(clientListener);
     }
 
+    public void kick(Client client) {
+        try {
+            client.kick();
+            clients.remove(client.getUuid());
+            rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Room createRoom() {
         UUID uuid = UUID.randomUUID();
         Room room = new Room(uuid);
@@ -99,8 +109,11 @@ public class Server {
             while(!socket.isClosed()) {
                 try {
                     String message = input.readLine();
-                    if(message == null)
-                        continue;
+                    if(message == null) {
+                        clients.remove(client.getUuid());
+                        rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
+                        return;
+                    }
                     String[] splitMessage = message.split(" ");
                     if(splitMessage.length == 0)
                         continue;
@@ -108,6 +121,8 @@ public class Server {
                         if(splitMessage[1].equals(DISCONNECT_MESSAGE)) {
                             client.close();
                             clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
+                            clients.remove(client.getUuid());
+                            rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
                             return;
                         }
                         continue;

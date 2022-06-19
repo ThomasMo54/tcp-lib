@@ -48,7 +48,7 @@ public class Client {
         socket.close();
     }
 
-    public void kick() throws IOException {
+    protected void kick() throws IOException {
         output.write(Server.INTERNAL_MESSAGE_PREFIX + " " + Server.DISCONNECT_MESSAGE);
         output.flush();
         close();
