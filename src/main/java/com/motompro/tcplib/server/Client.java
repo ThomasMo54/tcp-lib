@@ -2,6 +2,7 @@ package com.motompro.tcplib.server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Optional;
 import java.util.UUID;
 
 public class Client {
@@ -9,6 +10,7 @@ public class Client {
     private final UUID uuid;
     private final Socket socket;
     private final BufferedWriter output;
+    private Room room;
 
     protected Client(UUID uuid, Socket socket) throws IOException {
         this.uuid = uuid;
@@ -22,6 +24,14 @@ public class Client {
 
     public String getIp() {
         return socket.getRemoteSocketAddress().toString();
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public Optional<Room> getRoom() {
+        return Optional.ofNullable(room);
     }
 
     public void sendMessage(String... message) throws IOException {

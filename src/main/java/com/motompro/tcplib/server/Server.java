@@ -16,6 +16,7 @@ public class Server {
     private final ServerSocket serverSocket;
     private final Map<UUID, Client> clients = new HashMap<>();
     private final Set<ClientListener> clientListeners = new HashSet<>();
+    private final Map<UUID, Room> rooms = new HashMap<>();
 
     public Server() throws IOException {
         this.serverSocket = new ServerSocket(0);
@@ -41,6 +42,17 @@ public class Server {
 
     public void removeClientListener(ClientListener clientListener) {
         this.clientListeners.remove(clientListener);
+    }
+
+    public Room createRoom() {
+        UUID uuid = UUID.randomUUID();
+        Room room = new Room(uuid);
+        rooms.put(uuid, room);
+        return room;
+    }
+
+    public Map<UUID, Room> getRooms() {
+        return rooms;
     }
 
     public void broadcast(String... message) {
