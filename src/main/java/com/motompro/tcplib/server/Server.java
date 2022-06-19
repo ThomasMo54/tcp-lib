@@ -43,6 +43,20 @@ public class Server {
         this.clientListeners.remove(clientListener);
     }
 
+    public void broadcast(String... message) {
+        broadcast(Collections.emptySet(), message);
+    }
+
+    public void broadcast(Set<Client> blacklist, String... message) {
+        clients.values().stream().filter(client -> !blacklist.contains(client)).forEach(client -> {
+            try {
+                client.sendMessage(message);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     private void startConnectionThread() {
         new Thread(() -> {
             while(!serverSocket.isClosed()) {
