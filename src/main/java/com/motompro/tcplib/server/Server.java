@@ -40,6 +40,10 @@ public class Server {
         return clients;
     }
 
+    public int getClientNumber() {
+        return clients.size();
+    }
+
     public void addClientListener(ClientListener clientListener) {
         this.clientListeners.add(clientListener);
     }

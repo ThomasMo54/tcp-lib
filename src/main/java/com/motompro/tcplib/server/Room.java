@@ -40,6 +40,10 @@ public class Room {
         return clients;
     }
 
+    public int getClientNumber() {
+        return clients.size();
+    }
+
     public boolean isInside(ServerSideClient client) {
         return clients.contains(client);
     }
