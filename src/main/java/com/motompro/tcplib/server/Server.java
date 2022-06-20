@@ -52,6 +52,25 @@ public class Server {
         this.clientListeners.remove(clientListener);
     }
 
+    public void close() {
+        clients.values().forEach(client -> {
+            try {
+                client.kick();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean isClosed() {
+        return serverSocket.isClosed();
+    }
+
     public void kick(ServerSideClient client) {
         try {
             client.kick();
