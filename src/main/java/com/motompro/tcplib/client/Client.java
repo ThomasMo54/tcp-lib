@@ -21,16 +21,29 @@ public class Client {
         startServerInputThread();
     }
 
-    public boolean isClosed() {
-        return socket.isClosed();
-    }
-
     public void addServerListener(ServerListener serverListener) {
         this.serverListeners.add(serverListener);
     }
 
     public void removeServerListener(ServerListener serverListener) {
         this.serverListeners.remove(serverListener);
+    }
+
+    public void close() {
+        try {
+            output.write(Server.INTERNAL_MESSAGE_PREFIX);
+            output.write(Server.DISCONNECT_MESSAGE);
+            output.flush();
+            input.close();
+            output.close();
+            socket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean isClosed() {
+        return socket.isClosed();
     }
 
     public void sendMessage(String... message) throws IOException {
