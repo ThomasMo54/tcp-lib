@@ -53,8 +53,15 @@ public class ServerSideClient {
     }
 
     protected void kick() throws IOException {
-        output.write(Server.INTERNAL_MESSAGE_PREFIX + " " + Server.DISCONNECT_MESSAGE);
+        output.write(Server.INTERNAL_MESSAGE_PREFIX);
+        output.write(Server.DISCONNECT_MESSAGE);
         output.flush();
         close();
+    }
+
+    protected void ping() throws IOException {
+        output.write(Server.INTERNAL_MESSAGE_PREFIX);
+        output.write(Server.PING_MESSAGE);
+        output.flush();
     }
 }
