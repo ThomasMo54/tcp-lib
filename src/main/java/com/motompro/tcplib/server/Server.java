@@ -1,7 +1,5 @@
 package com.motompro.tcplib.server;
 
-import com.motompro.tcplib.client.Client;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
