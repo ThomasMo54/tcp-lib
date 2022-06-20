@@ -167,6 +167,7 @@ public class Server {
                     completeMessage = input.readLine();
                 } catch (IOException ignored) {}
                 if(completeMessage == null) {
+                    clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
                     clients.remove(client.getUuid());
                     rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
                     break;
