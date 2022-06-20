@@ -61,9 +61,7 @@ public class Client {
                     try {
                         socket.close();
                         output.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    } catch (IOException ignored) {}
                     serverListeners.forEach(ServerListener::onServerDisconnect);
                     break;
                 }
@@ -74,9 +72,7 @@ public class Client {
                         try {
                             socket.close();
                             output.close();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                        } catch (IOException ignored) {}
                         serverListeners.forEach(ServerListener::onServerDisconnect);
                         break;
                     }
