@@ -80,11 +80,8 @@ public class Server {
         }
     }
 
-    public Room createRoom() {
-        UUID uuid = UUID.randomUUID();
-        Room room = new Room(uuid);
-        rooms.put(uuid, room);
-        return room;
+    public void addRoom(Room room) {
+        rooms.put(room.getUuid(), room);
     }
 
     public void removeRoom(Room room) {

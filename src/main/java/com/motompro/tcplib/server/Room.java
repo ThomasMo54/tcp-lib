@@ -8,8 +8,8 @@ public class Room {
     private final UUID uuid;
     private final Set<ServerSideClient> clients = new HashSet<>();
 
-    protected Room(UUID uuid) {
-        this.uuid = uuid;
+    public Room() {
+        this.uuid = UUID.randomUUID();
     }
 
     public UUID getUuid() {
