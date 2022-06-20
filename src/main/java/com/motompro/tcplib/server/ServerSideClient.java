@@ -40,10 +40,8 @@ public class ServerSideClient {
         return Optional.ofNullable(room);
     }
 
-    public void sendMessage(String... message) throws IOException {
-        output.write(Server.EXTERNAL_MESSAGE_PREFIX);
-        for(String s : message)
-            output.write(s);
+    public void sendMessage(String message) throws IOException {
+        output.write(message);
         output.flush();
     }
 
@@ -53,15 +51,13 @@ public class ServerSideClient {
     }
 
     protected void kick() throws IOException {
-        output.write(Server.INTERNAL_MESSAGE_PREFIX);
-        output.write(Server.DISCONNECT_MESSAGE);
+        output.write(Server.INTERNAL_MESSAGE_PREFIX + " " + Server.DISCONNECT_MESSAGE);
         output.flush();
         close();
     }
 
     protected void ping() throws IOException {
-        output.write(Server.INTERNAL_MESSAGE_PREFIX);
-        output.write(Server.PING_MESSAGE);
+        output.write(Server.INTERNAL_MESSAGE_PREFIX + " " + Server.PING_MESSAGE);
         output.flush();
     }
 }

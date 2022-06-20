@@ -48,11 +48,11 @@ public class Room {
         return clients.contains(client);
     }
 
-    public void broadcast(String... message) {
+    public void broadcast(String message) {
         broadcast(Collections.emptySet(), message);
     }
 
-    public void broadcast(Set<ServerSideClient> blacklist, String... message) {
+    public void broadcast(Set<ServerSideClient> blacklist, String message) {
         clients.stream().filter(client -> !blacklist.contains(client)).forEach(client -> {
             try {
                 client.sendMessage(message);

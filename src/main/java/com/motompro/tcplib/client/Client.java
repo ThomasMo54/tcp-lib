@@ -31,8 +31,7 @@ public class Client {
 
     public void close() {
         try {
-            output.write(Server.INTERNAL_MESSAGE_PREFIX);
-            output.write(Server.DISCONNECT_MESSAGE);
+            output.write(Server.INTERNAL_MESSAGE_PREFIX + " " + Server.DISCONNECT_MESSAGE);
             output.flush();
             input.close();
             output.close();
@@ -46,10 +45,8 @@ public class Client {
         return socket.isClosed();
     }
 
-    public void sendMessage(String... message) throws IOException {
-        output.write(Server.EXTERNAL_MESSAGE_PREFIX);
-        for(String s : message)
-            output.write(s);
+    public void sendMessage(String message) throws IOException {
+        output.write(message);
         output.flush();
     }
 
@@ -57,15 +54,16 @@ public class Client {
         new Thread(() -> {
             while(!socket.isClosed()) {
                 try {
-                    String messagePrefix = input.readLine();
-                    if(messagePrefix == null) {
+                    String completeMessage = input.readLine();
+                    if(completeMessage == null) {
                         socket.close();
                         output.close();
                         serverListeners.forEach(ServerListener::onServerDisconnect);
                         break;
                     }
-                    if(messagePrefix.equals(Server.INTERNAL_MESSAGE_PREFIX)) {
-                        String message = input.readLine();
+                    String[] splitMessage = completeMessage.split(" ");
+                    if(splitMessage[0].equals(Server.INTERNAL_MESSAGE_PREFIX) && splitMessage.length > 1) {
+                        String message = splitMessage[1];
                         if(message.equals(Server.DISCONNECT_MESSAGE)) {
                             socket.close();
                             output.close();
@@ -74,10 +72,7 @@ public class Client {
                         }
                         continue;
                     }
-                    if(!messagePrefix.equals(Server.EXTERNAL_MESSAGE_PREFIX))
-                        continue;
-                    String message = input.readLine();
-                    serverListeners.forEach(serverListener -> serverListener.onServerMessage(message));
+                    serverListeners.forEach(serverListener -> serverListener.onServerMessage(completeMessage));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
