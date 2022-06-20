@@ -53,35 +53,41 @@ public class Client {
     private void startServerInputThread() {
         new Thread(() -> {
             while(!socket.isClosed()) {
+                String completeMessage = null;
                 try {
-                    String completeMessage = input.readLine();
-                    if(completeMessage == null) {
+                    completeMessage = input.readLine();
+                } catch (IOException ignored) {}
+                if(completeMessage == null) {
+                    try {
                         socket.close();
                         output.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    serverListeners.forEach(ServerListener::onServerDisconnect);
+                    break;
+                }
+                String[] splitMessage = completeMessage.split(" ");
+                if(splitMessage[0].equals(Server.INTERNAL_MESSAGE_PREFIX) && splitMessage.length > 1) {
+                    String message = splitMessage[1];
+                    if(message.equals(Server.DISCONNECT_MESSAGE)) {
+                        try {
+                            socket.close();
+                            output.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                         serverListeners.forEach(ServerListener::onServerDisconnect);
                         break;
                     }
-                    String[] splitMessage = completeMessage.split(" ");
-                    if(splitMessage[0].equals(Server.INTERNAL_MESSAGE_PREFIX) && splitMessage.length > 1) {
-                        String message = splitMessage[1];
-                        if(message.equals(Server.DISCONNECT_MESSAGE)) {
-                            socket.close();
-                            output.close();
-                            serverListeners.forEach(ServerListener::onServerDisconnect);
-                            break;
-                        }
-                        continue;
-                    }
-                    serverListeners.forEach(serverListener -> serverListener.onServerMessage(completeMessage));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    continue;
                 }
+                String finalMessage = completeMessage;
+                serverListeners.forEach(serverListener -> serverListener.onServerMessage(finalMessage));
             }
             try {
                 input.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            } catch (IOException ignored) {}
         }).start();
     }
 }

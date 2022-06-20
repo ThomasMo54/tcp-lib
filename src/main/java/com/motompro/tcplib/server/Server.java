@@ -162,39 +162,41 @@ public class Server {
                 throw new RuntimeException(e);
             }
             while(!socket.isClosed()) {
+                String completeMessage = null;
                 try {
-                    String completeMessage = input.readLine();
-                    if(completeMessage == null) {
+                    completeMessage = input.readLine();
+                } catch (IOException ignored) {}
+                if(completeMessage == null) {
+                    clients.remove(client.getUuid());
+                    rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
+                    break;
+                }
+                String[] splitMessage = completeMessage.split(" ");
+                if(splitMessage[0].equals(INTERNAL_MESSAGE_PREFIX) && splitMessage.length > 1) {
+                    String message = splitMessage[1];
+                    if(message.equals(PING_MESSAGE) && pings.containsKey(client.getUuid())) {
+                        pings.get(client.getUuid()).complete();
+                        pings.remove(client.getUuid());
+                    }
+                    if(message.equals(DISCONNECT_MESSAGE)) {
+                        try {
+                            client.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
                         clients.remove(client.getUuid());
                         rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
                         break;
                     }
-                    String[] splitMessage = completeMessage.split(" ");
-                    if(splitMessage[0].equals(INTERNAL_MESSAGE_PREFIX) && splitMessage.length > 1) {
-                        String message = splitMessage[1];
-                        if(message.equals(PING_MESSAGE) && pings.containsKey(client.getUuid())) {
-                            pings.get(client.getUuid()).complete();
-                            pings.remove(client.getUuid());
-                        }
-                        if(message.equals(DISCONNECT_MESSAGE)) {
-                            client.close();
-                            clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
-                            clients.remove(client.getUuid());
-                            rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
-                            break;
-                        }
-                        continue;
-                    }
-                    clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, completeMessage));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    continue;
                 }
+                String finalMessage = completeMessage;
+                clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, finalMessage));
             }
             try {
                 input.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            } catch (IOException ignored) {}
         }).start();
     }
 }
