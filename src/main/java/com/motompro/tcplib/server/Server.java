@@ -16,8 +16,8 @@ public abstract class Server<SSC extends ServerSideClient> {
 
     private final ServerSocket serverSocket;
     private final Map<UUID, SSC> clients = new HashMap<>();
-    private final Set<ClientListener> clientListeners = new HashSet<>();
-    private final Map<UUID, Room> rooms = new HashMap<>();
+    private final Set<ClientListener<SSC>> clientListeners = new HashSet<>();
+    private final Map<UUID, Room<SSC>> rooms = new HashMap<>();
     private boolean allowConnection = true;
     private final Map<UUID, Ping> pings = new HashMap<>();
 
@@ -43,11 +43,11 @@ public abstract class Server<SSC extends ServerSideClient> {
         return clients.size();
     }
 
-    public void addClientListener(ClientListener clientListener) {
+    public void addClientListener(ClientListener<SSC> clientListener) {
         this.clientListeners.add(clientListener);
     }
 
-    public void removeClientListener(ClientListener clientListener) {
+    public void removeClientListener(ClientListener<SSC> clientListener) {
         this.clientListeners.remove(clientListener);
     }
 
@@ -80,16 +80,16 @@ public abstract class Server<SSC extends ServerSideClient> {
         }
     }
 
-    public void addRoom(Room room) {
+    public void addRoom(Room<SSC> room) {
         rooms.put(room.getUuid(), room);
     }
 
-    public void removeRoom(Room room) {
+    public void removeRoom(Room<SSC> room) {
         room.getClients().forEach(client -> client.setRoom(null));
         rooms.remove(room.getUuid());
     }
 
-    public Map<UUID, Room> getRooms() {
+    public Map<UUID, Room<SSC>> getRooms() {
         return rooms;
     }
 
@@ -143,9 +143,10 @@ public abstract class Server<SSC extends ServerSideClient> {
                     }
                     UUID uuid = UUID.randomUUID();
                     ServerSideClient client = new ServerSideClient(uuid, socket);
-                    clients.put(uuid, generateClient(client));
-                    clientListeners.forEach(clientListener -> clientListener.onClientConnect(client));
-                    startClientInputThread(client, socket);
+                    SSC generatedClient = generateClient(client);
+                    clients.put(uuid, generatedClient);
+                    clientListeners.forEach(clientListener -> clientListener.onClientConnect(generatedClient));
+                    startClientInputThread(generatedClient, socket);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -153,7 +154,7 @@ public abstract class Server<SSC extends ServerSideClient> {
         }).start();
     }
 
-    private void startClientInputThread(ServerSideClient client, Socket socket) {
+    private void startClientInputThread(SSC client, Socket socket) {
         new Thread(() -> {
             BufferedReader input;
             try {

@@ -3,10 +3,10 @@ package com.motompro.tcplib.server;
 import java.io.IOException;
 import java.util.*;
 
-public class Room {
+public class Room<SSC extends ServerSideClient> {
 
     private final UUID uuid;
-    private final Set<ServerSideClient> clients = new HashSet<>();
+    private final Set<SSC> clients = new HashSet<>();
 
     public Room() {
         this.uuid = UUID.randomUUID();
@@ -16,27 +16,27 @@ public class Room {
         return uuid;
     }
 
-    public void addClient(ServerSideClient client) {
+    public void addClient(SSC client) {
         this.clients.add(client);
         client.setRoom(this);
     }
 
-    public void addClients(Collection<ServerSideClient> collection) {
+    public void addClients(Collection<SSC> collection) {
         this.clients.addAll(collection);
         collection.forEach(client -> client.setRoom(this));
     }
 
-    public void removeClient(ServerSideClient client) {
+    public void removeClient(SSC client) {
         this.clients.remove(client);
         client.setRoom(null);
     }
 
-    public void removeClients(Collection<ServerSideClient> collection) {
+    public void removeClients(Collection<SSC> collection) {
         this.clients.removeAll(collection);
         collection.forEach(client -> client.setRoom(null));
     }
 
-    public Set<ServerSideClient> getClients() {
+    public Set<SSC> getClients() {
         return clients;
     }
 
@@ -44,7 +44,7 @@ public class Room {
         return clients.size();
     }
 
-    public boolean isInside(ServerSideClient client) {
+    public boolean isInside(SSC client) {
         return clients.contains(client);
     }
 
@@ -52,7 +52,7 @@ public class Room {
         broadcast(Collections.emptySet(), message);
     }
 
-    public void broadcast(Set<ServerSideClient> blacklist, String message) {
+    public void broadcast(Set<SSC> blacklist, String message) {
         clients.stream().filter(client -> !blacklist.contains(client)).forEach(client -> {
             try {
                 client.sendMessage(message);
