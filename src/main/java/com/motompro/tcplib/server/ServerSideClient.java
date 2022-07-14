@@ -8,7 +8,7 @@ import java.util.UUID;
 public class ServerSideClient {
 
     protected final UUID uuid;
-    private final Socket socket;
+    protected final Socket socket;
     private final BufferedWriter output;
     protected Room room;
 
@@ -20,6 +20,10 @@ public class ServerSideClient {
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    public Socket getSocket() {
+        return socket;
     }
 
     public String getIp() {
