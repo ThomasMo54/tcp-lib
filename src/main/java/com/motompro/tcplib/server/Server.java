@@ -8,14 +8,14 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public class Server {
+public abstract class Server<SSC extends ServerSideClient> {
 
     public static final String INTERNAL_MESSAGE_PREFIX = "&internal&";
     public static final String DISCONNECT_MESSAGE = "disconnect";
     public static final String PING_MESSAGE = "ping";
 
     private final ServerSocket serverSocket;
-    private final Map<UUID, ServerSideClient> clients = new HashMap<>();
+    private final Map<UUID, SSC> clients = new HashMap<>();
     private final Set<ClientListener> clientListeners = new HashSet<>();
     private final Map<UUID, Room> rooms = new HashMap<>();
     private boolean allowConnection = true;
@@ -35,7 +35,7 @@ public class Server {
         return serverSocket.getLocalPort();
     }
 
-    public Map<UUID, ServerSideClient> getClients() {
+    public Map<UUID, SSC> getClients() {
         return clients;
     }
 
@@ -70,7 +70,7 @@ public class Server {
         return serverSocket.isClosed();
     }
 
-    public void kick(ServerSideClient client) {
+    public void kick(SSC client) {
         try {
             client.kick();
             clients.remove(client.getUuid());
@@ -143,7 +143,7 @@ public class Server {
                     }
                     UUID uuid = UUID.randomUUID();
                     ServerSideClient client = new ServerSideClient(uuid, socket);
-                    clients.put(uuid, client);
+                    clients.put(uuid, generateClient(client));
                     clientListeners.forEach(clientListener -> clientListener.onClientConnect(client));
                     startClientInputThread(client, socket);
                 } catch (IOException e) {
@@ -200,4 +200,6 @@ public class Server {
             } catch (IOException ignored) {}
         }).start();
     }
+
+    protected abstract SSC generateClient(ServerSideClient client);
 }

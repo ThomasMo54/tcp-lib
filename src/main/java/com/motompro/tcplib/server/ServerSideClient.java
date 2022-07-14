@@ -7,10 +7,10 @@ import java.util.UUID;
 
 public class ServerSideClient {
 
-    private final UUID uuid;
+    protected final UUID uuid;
     private final Socket socket;
     private final BufferedWriter output;
-    private Room room;
+    protected Room room;
 
     protected ServerSideClient(UUID uuid, Socket socket) throws IOException {
         this.uuid = uuid;
