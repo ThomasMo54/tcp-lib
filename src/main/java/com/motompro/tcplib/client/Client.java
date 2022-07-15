@@ -11,13 +11,13 @@ public class Client {
 
     private final Socket socket;
     private final BufferedReader input;
-    private final BufferedWriter output;
+    private final PrintWriter output;
     private final Set<ServerListener> serverListeners = new HashSet<>();
 
     public Client(String ip, int port) throws IOException {
         this.socket = new Socket(ip, port);
         this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        this.output = new PrintWriter(socket.getOutputStream());
         startServerInputThread();
     }
 
@@ -46,7 +46,7 @@ public class Client {
     }
 
     public void sendMessage(String message) throws IOException {
-        output.write(message);
+        output.println(message);
         output.flush();
     }
 

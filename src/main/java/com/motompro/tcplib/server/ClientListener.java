@@ -1,10 +1,10 @@
 package com.motompro.tcplib.server;
 
-public interface ClientListener<SSB extends ServerSideClient> {
+public interface ClientListener<SSC extends ServerSideClient> {
 
-    void onClientConnect(SSB client);
+    void onClientConnect(SSC client);
 
-    void onClientDisconnect(SSB client);
+    void onClientDisconnect(SSC client);
 
-    void onClientMessage(SSB client, String message);
+    void onClientMessage(SSC client, String message);
 }

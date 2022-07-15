@@ -9,13 +9,13 @@ public class ServerSideClient {
 
     protected final UUID uuid;
     protected final Socket socket;
-    private final BufferedWriter output;
+    private final PrintWriter output;
     protected Room room;
 
     protected ServerSideClient(UUID uuid, Socket socket) throws IOException {
         this.uuid = uuid;
         this.socket = socket;
-        this.output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        this.output = new PrintWriter(socket.getOutputStream());
     }
 
     public UUID getUuid() {
@@ -45,7 +45,7 @@ public class ServerSideClient {
     }
 
     public void sendMessage(String message) throws IOException {
-        output.write(message);
+        output.println(message);
         output.flush();
     }
 
@@ -55,13 +55,13 @@ public class ServerSideClient {
     }
 
     protected void kick() throws IOException {
-        output.write(Server.INTERNAL_MESSAGE_PREFIX + " " + Server.DISCONNECT_MESSAGE);
+        output.println(Server.INTERNAL_MESSAGE_PREFIX + " " + Server.DISCONNECT_MESSAGE);
         output.flush();
         close();
     }
 
     protected void ping() throws IOException {
-        output.write(Server.INTERNAL_MESSAGE_PREFIX + " " + Server.PING_MESSAGE);
+        output.println(Server.INTERNAL_MESSAGE_PREFIX + " " + Server.PING_MESSAGE);
         output.flush();
     }
 }
