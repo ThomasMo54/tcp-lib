@@ -34,9 +34,7 @@ public class ServerSideClient {
         return socket.isClosed();
     }
 
-    public void setRoom(Room room) {
-        if(this.room != null)
-            room.removeClient(this);
+    protected void setRoom(Room room) {
         this.room = room;
     }
 
