@@ -5,6 +5,7 @@ import com.motompro.tcplib.server.Server;
 import java.io.*;
 import java.net.Socket;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class Client {
@@ -27,6 +28,10 @@ public class Client {
 
     public void removeServerListener(ServerListener serverListener) {
         this.serverListeners.remove(serverListener);
+    }
+
+    public Set<ServerListener> getServerListeners() {
+        return serverListeners;
     }
 
     public void close() {
@@ -79,8 +84,9 @@ public class Client {
                     continue;
                 }
                 String finalMessage = completeMessage;
-                synchronized (serverListeners) {
-                    serverListeners.forEach(serverListener -> serverListener.onServerMessage(finalMessage));
+                synchronized(serverListeners) {
+                    for(Iterator<ServerListener> iterator = serverListeners.iterator(); iterator.hasNext();)
+                        iterator.next().onServerMessage(finalMessage);
                 }
             }
             try {
