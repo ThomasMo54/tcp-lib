@@ -79,7 +79,9 @@ public class Client {
                     continue;
                 }
                 String finalMessage = completeMessage;
-                serverListeners.forEach(serverListener -> serverListener.onServerMessage(finalMessage));
+                synchronized (serverListeners) {
+                    serverListeners.forEach(serverListener -> serverListener.onServerMessage(finalMessage));
+                }
             }
             try {
                 input.close();
