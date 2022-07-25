@@ -2,11 +2,13 @@ package com.motompro.tcplib.server;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Room<SSC extends ServerSideClient> {
 
     private final UUID uuid;
     private final Set<SSC> clients = new HashSet<>();
+    private final List<RoomListener<SSC>> roomListeners = new CopyOnWriteArrayList<>();
 
     public Room() {
         this.uuid = UUID.randomUUID();
@@ -14,6 +16,18 @@ public class Room<SSC extends ServerSideClient> {
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    public void addRoomListener(RoomListener<SSC> roomListener) {
+        this.roomListeners.add(roomListener);
+    }
+
+    public void removeRoomListener(RoomListener<SSC> roomListener) {
+        this.roomListeners.remove(roomListener);
+    }
+
+    public List<RoomListener<SSC>> getRoomListeners() {
+        return roomListeners;
     }
 
     public void addClient(SSC client) {

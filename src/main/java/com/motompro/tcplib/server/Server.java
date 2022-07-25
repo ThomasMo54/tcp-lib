@@ -170,7 +170,10 @@ public abstract class Server<SSC extends ServerSideClient> {
                 if(completeMessage == null) {
                     clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
                     clients.remove(client.getUuid());
-                    rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
+                    rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> {
+                        room.removeClient(client);
+                        room.getRoomListeners().forEach(roomListener -> roomListener.onClientDisconnect(client));
+                    });
                     break;
                 }
                 String[] splitMessage = completeMessage.split(" ");
@@ -188,13 +191,19 @@ public abstract class Server<SSC extends ServerSideClient> {
                         }
                         clientListeners.forEach(clientListener -> clientListener.onClientDisconnect(client));
                         clients.remove(client.getUuid());
-                        rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> room.removeClient(client));
+                        rooms.values().stream().filter(room -> room.isInside(client)).findFirst().ifPresent(room -> {
+                            room.removeClient(client);
+                            room.getRoomListeners().forEach(roomListener -> roomListener.onClientDisconnect(client));
+                        });
                         break;
                     }
                     continue;
                 }
                 String finalMessage = completeMessage;
                 clientListeners.forEach(clientListener -> clientListener.onClientMessage(client, finalMessage));
+                client.getRoom().ifPresent(room -> {
+                    ((Room<SSC>) room).getRoomListeners().forEach(roomListener -> roomListener.onClientMessage(client, finalMessage));
+                });
             }
             try {
                 input.close();

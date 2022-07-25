@@ -6,14 +6,16 @@ import java.io.*;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Client {
 
     private final Socket socket;
     private final BufferedReader input;
     private final PrintWriter output;
-    private final Set<ServerListener> serverListeners = new HashSet<>();
+    private final List<ServerListener> serverListeners = new CopyOnWriteArrayList<>();
 
     public Client(String ip, int port) throws IOException {
         this.socket = new Socket(ip, port);
@@ -30,7 +32,7 @@ public class Client {
         this.serverListeners.remove(serverListener);
     }
 
-    public Set<ServerListener> getServerListeners() {
+    public List<ServerListener> getServerListeners() {
         return serverListeners;
     }
 
@@ -84,10 +86,7 @@ public class Client {
                     continue;
                 }
                 String finalMessage = completeMessage;
-                synchronized(serverListeners) {
-                    for(Iterator<ServerListener> iterator = serverListeners.iterator(); iterator.hasNext();)
-                        iterator.next().onServerMessage(finalMessage);
-                }
+                serverListeners.forEach(serverListener -> serverListener.onServerMessage(finalMessage));
             }
             try {
                 input.close();
