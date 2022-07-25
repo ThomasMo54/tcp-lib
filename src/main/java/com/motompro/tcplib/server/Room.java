@@ -6,8 +6,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Room<SSC extends ServerSideClient> {
 
-    private final UUID uuid;
-    private final Set<SSC> clients = new HashSet<>();
+    protected final UUID uuid;
+    protected final Set<SSC> clients = new HashSet<>();
     private final List<RoomListener<SSC>> roomListeners = new CopyOnWriteArrayList<>();
 
     public Room() {
