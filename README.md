@@ -109,7 +109,7 @@ public class MyClient implements ServerListener {
     // This method is called when the server sends a message
     @Override
     public void onServerMessage(String message) {
-        System.out.println("The server sent a message " + message);
+        System.out.println("The server sent a message: " + message);
     }
 }
 ```
