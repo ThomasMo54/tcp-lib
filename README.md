@@ -37,7 +37,7 @@ Using Maven, copy this into your `pom.xml`:
 
 `MyServer.java`
 ```java
-public class MyServer extends Server<ServerSideClient> implements ClientListener<ServerSideClient {
+public class MyServer extends Server<ServerSideClient> implements ClientListener<ServerSideClient> {
 
     private static final int PORT = 11111;
 
