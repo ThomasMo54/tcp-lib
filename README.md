@@ -2,10 +2,10 @@
 
 A very basic Java library which handles TCP/IP communication.
 
-## Information
+## Prerequisites
 
 <ul>
-    <li>Java 8</li>
+    <li>Java 8 or higher</li>
     <li>Maven</li>
 </ul>
 
